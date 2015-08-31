@@ -1,8 +1,10 @@
-package co.coderiver.facebooklogin_sample;
+package co.coderiver.facebooklogin_sample.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,6 +17,10 @@ import com.facebook.Profile;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
+import co.coderiver.facebooklogin_sample.R;
+import co.coderiver.facebooklogin_sample.util.IntentUtil;
+import co.coderiver.facebooklogin_sample.util.PrefUtil;
+
 
 public class MainActivity extends ActionBarActivity {
 
@@ -22,6 +28,9 @@ public class MainActivity extends ActionBarActivity {
     private TextView info;
     private ImageView profileImgView;
     private LoginButton loginButton;
+
+    private PrefUtil prefUtil;
+    private IntentUtil intentUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +40,9 @@ public class MainActivity extends ActionBarActivity {
         callbackManager = CallbackManager.Factory.create();
 
         setContentView(R.layout.activity_main);
+
+        prefUtil = new PrefUtil(this);
+        intentUtil = new IntentUtil(this);
 
         info = (TextView) findViewById(R.id.info);
         profileImgView = (ImageView) findViewById(R.id.profile_img);
@@ -43,6 +55,11 @@ public class MainActivity extends ActionBarActivity {
                 info.setText(message(profile));
 
                 String userId = loginResult.getAccessToken().getUserId();
+                String accessToken = loginResult.getAccessToken().getToken();
+
+                // save accessToken to SharedPreference
+                prefUtil.saveAccessToken(accessToken);
+
                 String profileImgUrl = "https://graph.facebook.com/" + userId + "/picture?type=large";
 
 
@@ -65,6 +82,24 @@ public class MainActivity extends ActionBarActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_show_access_token:
+                intentUtil.showAccessToken();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
         Profile profile = Profile.getCurrentProfile();
@@ -84,4 +119,5 @@ public class MainActivity extends ActionBarActivity {
         }
         return stringBuffer.toString();
     }
+
 }
