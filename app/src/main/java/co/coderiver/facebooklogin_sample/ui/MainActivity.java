@@ -2,13 +2,15 @@ package co.coderiver.facebooklogin_sample.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.facebook.AccessToken;
+import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -22,7 +24,7 @@ import co.coderiver.facebooklogin_sample.util.IntentUtil;
 import co.coderiver.facebooklogin_sample.util.PrefUtil;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends AppCompatActivity {
 
     private CallbackManager callbackManager;
     private TextView info;
@@ -102,6 +104,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     public void onResume() {
         super.onResume();
+        deleteAccessToken();
         Profile profile = Profile.getCurrentProfile();
         info.setText(message(profile));
     }
@@ -120,4 +123,24 @@ public class MainActivity extends ActionBarActivity {
         return stringBuffer.toString();
     }
 
+    private void deleteAccessToken() {
+        AccessTokenTracker accessTokenTracker = new AccessTokenTracker() {
+            @Override
+            protected void onCurrentAccessTokenChanged(
+                    AccessToken oldAccessToken,
+                    AccessToken currentAccessToken) {
+
+                if (currentAccessToken == null){
+                    //User logged out
+                    prefUtil.clearToken();
+                    clearUserArea();
+                }
+            }
+        };
+    }
+
+    private void clearUserArea() {
+        info.setText("");
+        profileImgView.setImageDrawable(null);
+    }
 }

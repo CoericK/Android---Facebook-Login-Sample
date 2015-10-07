@@ -8,4 +8,5 @@
 
     <string name="app_id">397793213746674</string>
     <string name="title_activity_access_token">AccessTokenActivity</string>
+    <string name="title_activity_show_access_token">ShowAccessTokenActivity</string>
 </resources>
